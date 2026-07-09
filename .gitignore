@@ -1,0 +1,7 @@
+.venv
+.devcontainer
+.claude
+output
+checkpoints
+docs
+
