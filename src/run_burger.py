@@ -42,7 +42,7 @@ def build_config_1d() -> BurgersConfig:
         dimension=1,
         # domain + mesh (only x is used in 1D)
         xmin=0.0, xmax=1.0,
-        nx=300,
+        nx=500,
         element_type="Lagrange", polynomial_degree=1,
         # time
         T=1.0, dt=0.002, time_integrator="backward_euler",
@@ -158,7 +158,7 @@ def main() -> None:
     solver.plot_snapshots()
     solver.plot_heatmap()
     solver.plot_solution(time_index=-1)
-    # solver.plot_animation()   # requires an animation writer (ffmpeg/pillow)
+    solver.plot_animation()   # requires an animation writer (ffmpeg/pillow)
 
 
 if __name__ == "__main__":
