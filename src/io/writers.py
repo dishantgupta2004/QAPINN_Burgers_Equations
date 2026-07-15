@@ -1,33 +1,9 @@
-"""
-src/io/writers.py
-=================
-
-Result persistence in several formats (numpy / csv / hdf5 / vtk / diagnostics),
-for 1D, 2D and 3D solutions.
-
-These are free functions that take plain arrays + the config, so output can be
-produced and unit-tested without instantiating a full solver. All writers are
-rank-0-only (serial-accurate gather semantics), matching the solver's snapshot
-recording strategy.
-
-Coordinate convention
-----------------------
-``coords`` is an ``(n_points, gdim)`` array (a single column in 1D). The NumPy
-archive stores it under ``coords``; for 1D it additionally stores the flat
-``x`` vector for backward compatibility with existing 1D consumers. The CSV
-writer uses a *wide* table in 1D (one column per x) and a *tidy/long* table in
-2D/3D (one row per (point, time)).
-"""
-
 from __future__ import annotations
-
 import csv
 import logging
 import os
 from typing import Dict, List
-
 import numpy as np
-
 from src.config.config import BurgersConfig
 from src.fenics_backend import io as fio
 
@@ -65,7 +41,6 @@ def write_numpy(cfg: BurgersConfig, coords: np.ndarray, t: np.ndarray,
     path = os.path.join(cfg.output_dir, "numpy", f"{cfg.experiment_name}.npz")
     payload = {"coords": coords, "t": t, "u": U}
     if cfg.dimension == 1:
-        # Backward-compatible flat x vector for existing 1D consumers.
         payload["x"] = coords[:, 0]
     np.savez_compressed(path, **payload)
     log.info("Saved NumPy archive -> %s  (coords %s, u %s)",
@@ -96,8 +71,6 @@ def write_csv(cfg: BurgersConfig, coords: np.ndarray, t: np.ndarray,
             for i, ti in enumerate(t):
                 w.writerow([f"{ti:.6g}"] + [f"{val:.8e}" for val in U[i]])
     else:
-        # Tidy/long CSV: one row per (point, time). Wide form is impractical for
-        # scattered 2D/3D points.
         data, header = _long_table(cfg, coords, t, U)
         np.savetxt(path, data, delimiter=",", header=",".join(header),
                    comments="", fmt="%.8e")

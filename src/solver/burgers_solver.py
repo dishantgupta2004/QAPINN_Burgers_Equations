@@ -1,26 +1,8 @@
-"""
-src/solver/burgers_solver.py
-============================
-
-The time-stepping driver: mesh -> spaces -> IC -> BCs -> Backward-Euler time
-loop -> I/O. After the refactor this class is a *coordinator*: the heavy,
-reusable pieces (initial conditions, PDE weak form, boundary conditions,
-diagnostics, I/O, visualization) live in their own modules and are composed here.
-
-Usage
------
-    solver = BurgersSolver(config)
-    solver.solve()
-"""
-
 from __future__ import annotations
-
 import logging
 import os
 from typing import Dict, List, Optional
-
 import numpy as np
-
 from src.config.config import BurgersConfig
 from src.fenics_backend import (
     require_dolfinx,
@@ -47,22 +29,19 @@ class BurgersSolver:
             level=getattr(logging, config.log_level.upper(), logging.INFO)
         )
         self.comm = MPI.COMM_WORLD
-
-        # --- results/state populated during solve() --------------------------
         self.mesh: Optional["dmesh.Mesh"] = None
         self.V: Optional["fem.FunctionSpace"] = None
-        self.u: Optional["fem.Function"] = None       # current unknown u^{n+1}
-        self.u_n: Optional["fem.Function"] = None      # previous u^n
-        self.times: List[float] = []                   # recorded time levels
-        self.snapshots: List[np.ndarray] = []          # solution at DOFs (rank0)
-        self.coords: Optional[np.ndarray] = None       # (n_points, gdim) coords
-        self._sort_idx: Optional[np.ndarray] = None    # DOF -> sorted order
+        self.u: Optional["fem.Function"] = None      
+        self.u_n: Optional["fem.Function"] = None    
+        self.times: List[float] = []                   
+        self.snapshots: List[np.ndarray] = []        
+        self.coords: Optional[np.ndarray] = None       
+        self._sort_idx: Optional[np.ndarray] = None    
         self.diagnostics: List[Dict[str, float]] = []
 
         self.pde = BurgersPDE(config.nu)
         self._prepare_output_dirs()
 
-    # ------------------------------------------------------------------ setup
     def _prepare_output_dirs(self) -> None:
         """Create the output subdirectory tree (rank 0 only)."""
         if self.comm.rank != 0:
@@ -70,17 +49,11 @@ class BurgersSolver:
         base = self.cfg.output_dir
         for sub in ("numpy", "csv", "xdmf", "hdf5", "figures", "animations"):
             os.makedirs(os.path.join(base, sub), exist_ok=True)
-        # Persist the exact config for reproducibility.
+            
         with open(os.path.join(base, "config.json"), "w") as fh:
             fh.write(self.cfg.to_json())
 
     def _build_mesh(self) -> None:
-        """Construct the computational mesh for 1D / 2D / 3D.
-
-        The domain is always an axis-aligned box; the cell family is chosen per
-        dimension (interval → triangle → tetrahedron). The per-axis resolution
-        comes from ``nx``/``ny``/``nz``.
-        """
         cfg = self.cfg
         if cfg.dimension == 1:
             self.mesh = dmesh.create_interval(
@@ -111,7 +84,7 @@ class BurgersSolver:
                 cfg.nx, cfg.ny, cfg.nz,
                 cfg.xmin, cfg.xmax, cfg.ymin, cfg.ymax, cfg.zmin, cfg.zmax,
             )
-        else:  # pragma: no cover - guarded by config validation
+        else:  
             raise NotImplementedError(
                 f"dimension={cfg.dimension} not supported (must be 1, 2, or 3)."
             )
@@ -125,8 +98,8 @@ class BurgersSolver:
             cfg.polynomial_degree,
         )
         self.V = fem.functionspace(self.mesh, element)
-        self.u = fem.Function(self.V, name="u")        # u^{n+1}
-        self.u_n = fem.Function(self.V, name="u_n")    # u^n
+        self.u = fem.Function(self.V, name="u")        
+        self.u_n = fem.Function(self.V, name="u_n")    
         self.log.info(
             "Function space: %s degree %d, %d global DOFs",
             cfg.element_type, cfg.polynomial_degree,
@@ -147,37 +120,23 @@ class BurgersSolver:
             self.cfg, self.mesh, self.V, self.log
         ).build()
 
-    # --------------------------------------------------------- solver assembly
     def _build_nonlinear_problem(
         self, bcs: List["fem.DirichletBC"], dt_const: "fem.Constant"
     ) -> "NonlinearProblem":
-        """Assemble the SNES-based nonlinear problem (dolfinx >= 0.11).
-
-        Bug fix (B5): the original code targeted the pre-0.11 API
-        (``NonlinearProblem`` + a separate ``nls.petsc.NewtonSolver``). In
-        dolfinx 0.11 ``NonlinearProblem`` is SNES-backed, bundles its own
-        solver, requires a ``petsc_options_prefix``, and is driven by
-        ``problem.solve()``. The Newton/linear-solver knobs from the config are
-        mapped onto the corresponding PETSc SNES/KSP options here.
-        """
         v = ufl.TestFunction(self.V)
         F = self.pde.residual(self.u, self.u_n, v, dt_const)
-        # The Jacobian is derived automatically by UFL (exact Newton).
         J = ufl.derivative(F, self.u)
 
         petsc_options = {
-            "snes_type": "newtonls",             # line-search Newton
+            "snes_type": "newtonls",        
             "snes_rtol": self.cfg.newton_rtol,
             "snes_atol": self.cfg.newton_atol,
             "snes_max_it": self.cfg.newton_max_it,
-            "ksp_type": self.cfg.linear_solver,  # inner linear solve
+            "ksp_type": self.cfg.linear_solver, 
             "pc_type": self.cfg.preconditioner,
         }
-        # Merge any user-supplied extra PETSc options (they win on conflict).
         petsc_options.update(self.cfg.petsc_options)
 
-        # A per-instance prefix keeps global PETSc.Options entries from
-        # colliding if several solvers are built in one process.
         prefix = f"burgers_{id(self):x}_"
 
         problem = NonlinearProblem(
@@ -187,21 +146,9 @@ class BurgersSolver:
         )
         return problem
 
-    # ---------------------------------------------------------- data plumbing
     def _init_coordinate_ordering(self) -> None:
-        """Cache the DOF coordinates and a permutation that sorts them.
-
-        The FE DOF ordering is not geometrically meaningful; we sort the DOFs
-        **lexicographically** (by x, then y, then z) once so that every
-        snapshot, plot, and dataset row lines up in a reproducible spatial
-        order. ``coords`` is kept as an ``(n_points, gdim)`` array — a single
-        column in 1D, two in 2D, three in 3D. Restricted to serial gather
-        semantics for clarity (rank-0 assembly).
-        """
         gdim = self.cfg.dimension
         x_dofs = self.V.tabulate_dof_coordinates()[:, :gdim]
-        # np.lexsort sorts by the LAST key first, so reverse the columns to make
-        # x the primary sort key, y secondary, z tertiary.
         keys = tuple(x_dofs[:, i] for i in reversed(range(gdim)))
         self._sort_idx = np.lexsort(keys)
         self.coords = x_dofs[self._sort_idx]
@@ -209,8 +156,6 @@ class BurgersSolver:
     def _record_snapshot(self, t: float) -> None:
         """Store the current solution (spatially sorted) and its time level."""
         local = self.u.x.array.real.copy()
-        # NOTE: this assembly path is serial-accurate. In MPI runs one would
-        # gather ghost-free owned values; kept simple & explicit here.
         self.times.append(float(t))
         self.snapshots.append(local[self._sort_idx].copy())
 
@@ -218,31 +163,19 @@ class BurgersSolver:
         """Return solution history as a (n_times, n_points) array."""
         return np.vstack(self.snapshots) if self.snapshots else np.empty((0, 0))
 
-    # ------------------------------------------------------------------- solve
     def solve(self) -> None:
         """Run the full time-dependent simulation."""
         cfg = self.cfg
         self.log.info("=== Burgers simulation: %s ===", cfg.experiment_name)
-
-        # 1) Discrete setup
         self._build_mesh()
         self._build_space()
         self._apply_initial_condition()
         self._init_coordinate_ordering()
 
-        # 2) Boundary conditions & nonlinear solver
         bcs = self._build_boundary_conditions()
         dt_const = fem.Constant(self.mesh, default_scalar_type(cfg.dt))
         problem = self._build_nonlinear_problem(bcs, dt_const)
 
-        # 3) Optional streaming file writer (XDMF).
-        #    Bug fix (B1): XDMF writing is *collective* — every rank must open
-        #    and write. The original guard
-        #        if cfg.save_xdmf and rank == 0 or cfg.save_xdmf:
-        #    collapsed (operator precedence) to just `cfg.save_xdmf`, so all
-        #    ranks opened the file but only rank 0 had created the directory,
-        #    racing/crashing in parallel. Here we create the dir on rank 0,
-        #    barrier, then open collectively on all ranks.
         xdmf_writer = None
         if cfg.save_xdmf:
             xdmf_dir = os.path.join(cfg.output_dir, "xdmf")
@@ -253,7 +186,6 @@ class BurgersSolver:
             xdmf_writer = fio.XDMFFile(self.comm, xdmf_path, "w")
             xdmf_writer.write_mesh(self.mesh)
 
-        # 4) Record the initial state (t = 0)
         t = 0.0
         self._record_snapshot(t)
         if cfg.compute_diagnostics:
@@ -263,7 +195,6 @@ class BurgersSolver:
         if xdmf_writer is not None:
             xdmf_writer.write_function(self.u, t)
 
-        # 5) Backward-Euler time marching -------------------------------------
         n_steps = int(round(cfg.T / cfg.dt))
         self.log.info("Marching %d steps, dt=%g, T=%g, nu=%g",
                       n_steps, cfg.dt, cfg.T, cfg.nu)
@@ -271,9 +202,7 @@ class BurgersSolver:
         for step in range(1, n_steps + 1):
             t = step * cfg.dt
 
-            # Solve the nonlinear system F(u^{n+1}) = 0. In dolfinx 0.11 the
-            # SNES-based problem updates self.u in place; we assert convergence
-            # explicitly (the SNES does not raise by default).
+            
             problem.solve()
             self.u.x.scatter_forward()
 
@@ -323,7 +252,6 @@ class BurgersSolver:
         if cfg.generate_pinn_dataset:
             self.generate_pinn_dataset()
 
-    # ------------------------------------------------------------------- I/O
     def _write_outputs(self) -> None:
         """Delegate persistence to the io.writers module."""
         writers.write_outputs(
@@ -348,9 +276,7 @@ class BurgersSolver:
             self.log,
         )
 
-    # ---------------------------------------------------------- visualization
-    # Thin delegating wrappers so the public API (solver.plot_*()) is preserved
-    # while the plotting implementation lives in src.viz.plots.
+    
     def plot_solution(self, time_index: int = -1, show: bool = False,
                       save: bool = True) -> None:
         plots.plot_solution(self.cfg, self.coords, np.asarray(self.times),

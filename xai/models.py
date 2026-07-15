@@ -1,27 +1,3 @@
-"""
-xai.models
-==========
-
-Faithful re-implementations of the two networks compared in this project, built
-so that the *saved* checkpoints load exactly (``strict=True``):
-
-* :class:`QAPINN`   -- hybrid quantum-assisted PINN (paper-aligned ansatz):
-      Linear(2 -> n) encoder -> ``pi*tanh`` -> RY angle encoding ->
-      ``n_layers`` RX-only variational blocks with alternating full-ring CNOTs ->
-      full ``2**n`` computational-basis probability read-out ->
-      Linear(2**n -> 2**(n-1)) -> Tanh -> Linear(2**(n-1) -> 1).
-
-* :class:`ClassicalPINN` -- a plain tanh MLP; its widths are inferred directly
-      from the checkpoint ``state_dict`` (the stored ``arch`` string is stale).
-
-Both consume **normalised** inputs ``x, t in [-1, 1]`` (see :class:`~xai.common.Physics`).
-
-The module also exposes bare PennyLane QNodes (:func:`make_probs_qnode`,
-:func:`make_state_qnode`, :func:`make_expval_qnode`) reused by the quantum-metric
-and barren-plateau analyses so that circuit structure is defined in exactly one
-place.
-"""
-
 from __future__ import annotations
 
 from typing import Dict, Tuple
@@ -35,10 +11,6 @@ from .common import resolve_checkpoint
 
 LAYERS_PAPER = 8 
 
-
-# --------------------------------------------------------------------------- #
-# Circuit factory (single source of truth for the ansatz)
-# --------------------------------------------------------------------------- #
 def _apply_ansatz(inputs, weights, n_qubits: int, n_layers: int) -> None:
     """Apply the paper-aligned circuit body (encoding + variational layers).
 

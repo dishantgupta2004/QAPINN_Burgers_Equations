@@ -1,17 +1,3 @@
-"""
-src/physics/initial_conditions.py
-=================================
-
-Initial-condition strategies: turn a :class:`BurgersConfig` into a spatial
-callable ``u0(x)`` — for 1D, 2D or 3D.
-
-The returned callable maps a coordinate array of shape ``(gdim, n_points)``
-(dolfinx's convention for ``Function.interpolate``) to a value array of shape
-``(n_points,)``. ``x[0]``/``x[1]``/``x[2]`` are the x/y/z rows. Keeping this as
-a factory means new IC presets are added in exactly one place, and each preset
-reads ``self.cfg.dimension`` to build the right-dimensional field.
-"""
-
 from __future__ import annotations
 
 from typing import Callable, Dict, List

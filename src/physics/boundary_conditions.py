@@ -1,28 +1,7 @@
-"""
-src/physics/boundary_conditions.py
-==================================
-
-Boundary-condition construction for 1D/2D/3D box domains.
-
-The translation of config ``{face: (type, value)}`` specs into dolfinx BC
-objects lives here, in one focused, testable place. For a box domain each face
-is a coordinate hyperplane (``x = xmin``, ``y = ymax``, …); we locate the DOFs
-on that hyperplane geometrically and impose the requested condition.
-
-* Dirichlet -> strongly imposed via ``fem.dirichletbc``.
-* Neumann   -> the homogeneous case is *natural* (nothing to assemble, because
-  the boundary integral was dropped in the weak form). Non-homogeneous Neumann
-  would add a surface integral to the residual; flagged here.
-* Periodic / Robin -> explicit NotImplementedError extension points.
-"""
-
 from __future__ import annotations
-
 import logging
 from typing import List
-
 import numpy as np
-
 from src.config.config import BurgersConfig
 from src.config.enums import BCType
 from src.fenics_backend import fem, default_scalar_type

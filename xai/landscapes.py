@@ -33,13 +33,7 @@ import torch
 
 from . import models
 from .common import PHYSICS, FeatureBundle, flat_grid
-
-
-# --------------------------------------------------------------------------- #
-# Physics-informed loss reconstructed from the FEM grid
-# --------------------------------------------------------------------------- #
 W_DATA, W_PDE, W_IC, W_BC = 1.0, 1.0, 10.0, 10.0
-
 
 def _fem_tensors(fb: FeatureBundle, n_data=800, n_coll=800, n_bcic=200, seed=0):
     """Sample supervised / collocation / IC / BC tensors from the FEM grid.

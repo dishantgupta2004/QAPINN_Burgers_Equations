@@ -1,76 +1,21 @@
-r"""
-xai.expressivity
-================
-
-Fourier / spectral characterisation of what the QA-PINN can *represent*, and how
-its gradient signal behaves relative to the classical PINN.
-
-Background -- RY encoding as a truncated Fourier series
--------------------------------------------------------
-A data-encoding gate :math:`R_y(\theta)=e^{-i\theta Y/2}` with a scalar datum
-:math:`\theta = w\,\xi` acts as a generator with eigenvalues
-:math:`\{-1/2, +1/2\}`.  A model that measures an observable after encoding a
-1-D input through such gates is exactly a **Fourier series**
-
-.. math::
-    f(\xi) = \sum_{\omega \in \Omega} c_\omega \, e^{i\omega\xi},
-
-whose accessible frequency set :math:`\Omega` is the set of eigenvalue
-differences (gaps) of the *sum of encoding generators*.  For :math:`L` repeated
-Pauli-rotation encodings of the same datum the spectrum is
-:math:`\Omega=\{-L,\dots,-1,0,1,\dots,L\}` -- the **degree grows linearly with
-the number of encoding repetitions**, and the coefficients :math:`c_\omega` are
-shaped by the trainable (variational + entangling) block.
-
-In this QA-PINN the ``(x,t)`` datum is first passed through a trainable
-``Linear(2->n)`` layer and a ``pi*tanh`` non-linearity before a **single** layer
-of RY encodings.  Two consequences follow, both testable here:
-
-* **Single RY layer -> nominally degree-1 in the encoder angle.**  The reachable
-  set of *base* harmonics per qubit is small; richer spectra must come from the
-  interleaved classical linear map (which mixes ``x`` and ``t`` and rescales the
-  effective frequency ``w``) and from entanglement correlating the qubits.
-* Because ``pi*tanh`` is a smooth nonlinear warp of a linear form in ``(x,t)``,
-  the *empirical* spectrum of the network output over a uniform ``(x,t)`` grid is
-  a good proxy for the frequencies the model actually uses to fit Burgers.
-
-The functions below therefore (a) sweep each model over a uniform grid, (b) take
-the FFT of the output (and of the raw quantum-layer probabilities) and (c)
-summarise the accessible-frequency content for 3/4/5 qubits vs. the classical
-PINN.
-"""
-
 from __future__ import annotations
-
 from typing import Dict
-
 import numpy as np
 import torch
-
 from . import models
 from .common import PHYSICS
 
-
-# --------------------------------------------------------------------------- #
-# Generic 1-D FFT helpers
-# --------------------------------------------------------------------------- #
 def _fft_power(signal: np.ndarray, dxi: float):
-    """One-sided power spectrum of a real 1-D ``signal`` sampled at spacing ``dxi``.
-
-    Returns ``(freqs, power)`` with ``power`` normalised to unit total energy.
-    """
     signal = signal - signal.mean()
     n = signal.shape[0]
     fft = np.fft.rfft(signal)
     power = np.abs(fft) ** 2
-    freqs = np.fft.rfftfreq(n, d=dxi)  # cycles per unit input
+    freqs = np.fft.rfftfreq(n, d=dxi) 
     total = power.sum() + 1e-30
     return freqs, power / total
 
 
 def _spectral_summary(freqs: np.ndarray, power: np.ndarray, energy_thresh: float = 0.99) -> Dict:
-    """Summarise a normalised power spectrum: centroid, effective bandwidth,
-    and the maximum frequency capturing ``energy_thresh`` of the energy."""
     cum = np.cumsum(power)
     cum = cum / (cum[-1] + 1e-30)
     k = int(np.searchsorted(cum, energy_thresh))
@@ -84,16 +29,7 @@ def _spectral_summary(freqs: np.ndarray, power: np.ndarray, energy_thresh: float
         "peak_frequency": float(freqs[int(np.argmax(power))]),
     }
 
-
-# --------------------------------------------------------------------------- #
-# Model evaluation on a line
-# --------------------------------------------------------------------------- #
 def _eval_line(model, axis: str, fixed: float, n: int = 512):
-    """Evaluate ``u(x,t)`` along a coordinate line, returning normalised output.
-
-    ``axis='x'`` sweeps x at ``t=fixed``; ``axis='t'`` sweeps t at ``x=fixed``.
-    Inputs are normalised to ``[-1,1]`` exactly as during training.
-    """
     if axis == "x":
         coord = np.linspace(PHYSICS.xmin, PHYSICS.xmax, n)
         xs, ts = coord, np.full(n, fixed)
@@ -108,7 +44,6 @@ def _eval_line(model, axis: str, fixed: float, n: int = 512):
 
 
 def _eval_quantum_probs_line(model: models.QAPINN, axis: str, fixed: float, n: int = 512):
-    """Evaluate the raw quantum-layer probabilities along a coordinate line."""
     if axis == "x":
         xs = np.linspace(PHYSICS.xmin, PHYSICS.xmax, n)
         ts = np.full(n, fixed)
@@ -121,10 +56,6 @@ def _eval_quantum_probs_line(model: models.QAPINN, axis: str, fixed: float, n: i
         _, feats = model(xn, tn, return_features=True)
     return feats["quantum_probs"].cpu().numpy()  # (n, 2**q)
 
-
-# --------------------------------------------------------------------------- #
-# Fourier analysis of a single model
-# --------------------------------------------------------------------------- #
 def fourier_spectrum(
     model,
     label: str,
@@ -133,13 +64,6 @@ def fourier_spectrum(
     n: int = 512,
     is_quantum: bool = False,
 ) -> Dict:
-    """Compute the output power spectrum of ``model`` along one coordinate line.
-
-    For QA-PINNs (``is_quantum=True``) we additionally return the *aggregate*
-    power spectrum of the quantum-layer probability channels, which reveals the
-    frequency content the quantum feature map itself injects (before the
-    classical decoder).
-    """
     span = (PHYSICS.xmax - PHYSICS.xmin) if axis == "x" else (PHYSICS.T - PHYSICS.tmin)
     dxi = span / (n - 1)
 
@@ -156,7 +80,6 @@ def fourier_spectrum(
 
     if is_quantum:
         probs = _eval_quantum_probs_line(model, axis, fixed, n)
-        # aggregate the per-basis-state spectra (mean over channels)
         agg = np.zeros_like(freqs)
         for c in range(probs.shape[1]):
             _, p = _fft_power(probs[:, c], dxi)
@@ -167,19 +90,13 @@ def fourier_spectrum(
     return result
 
 
-# --------------------------------------------------------------------------- #
-# Suite-level comparison
-# --------------------------------------------------------------------------- #
 def compare_spectra(
     qubit_range=(3, 4, 5),
     axis: str = "x",
     fixed: float = 0.5,
     n: int = 512,
 ) -> Dict:
-    """Fourier spectra of the classical PINN and each QA-PINN on the same line.
-
-    Returns a dict keyed by model label; used directly by the visualizer.
-    """
+   
     out: Dict[str, Dict] = {}
 
     try:
@@ -197,7 +114,6 @@ def compare_spectra(
         except Exception as exc:  # pragma: no cover
             out[f"QA-PINN {q}q"] = {"error": str(exc)}
 
-    # compact scalar comparison table
     table = []
     for label, r in out.items():
         if "error" in r:
@@ -209,24 +125,11 @@ def compare_spectra(
     out["_summary_table"] = table
     return out
 
-
-# --------------------------------------------------------------------------- #
-# Gradient dynamics: classical vs. quantum parameter groups
-# --------------------------------------------------------------------------- #
 def gradient_dynamics(
     model: models.QAPINN,
     n_points: int = 400,
     seed: int = 0,
 ) -> Dict:
-    r"""Compare gradient magnitudes of the *quantum* variational weights against
-    the *classical* (encoder/decoder) weights for a converged QA-PINN.
-
-    We form the physics-informed loss (PDE residual + light IC anchor) on a
-    random collocation batch and back-propagate, then report per-group gradient
-    norms and their ratio.  A quantum group whose gradient norm is orders of
-    magnitude below the classical groups is a fingerprint of a (partial) barren
-    plateau / vanishing trainability of the quantum core.
-    """
     rng = np.random.default_rng(seed)
     model = model.train()
 
