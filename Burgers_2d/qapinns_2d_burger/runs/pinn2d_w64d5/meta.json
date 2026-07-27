@@ -1,0 +1,22 @@
+{
+  "tag": "pinn2d_w64d5",
+  "seed": 1234,
+  "iters": 20000,
+  "n_r": 8000,
+  "n_i": 1000,
+  "n_b": 500,
+  "lam_r": 1.0,
+  "lam_i": 10.0,
+  "lam_b": 10.0,
+  "nu": 0.01,
+  "lr": 0.001,
+  "resample_every": 2000,
+  "device": "cuda",
+  "best_mean_relL2": 0.00020866959675913677,
+  "n_params": 17026,
+  "wall_total_s": 630.1857764720917,
+  "torch": "2.11.0+cu128",
+  "model": "PINN2D",
+  "width": 64,
+  "depth": 5
+}

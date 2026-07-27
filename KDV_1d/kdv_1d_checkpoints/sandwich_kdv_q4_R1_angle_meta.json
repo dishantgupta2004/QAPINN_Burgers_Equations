@@ -1,0 +1,27 @@
+{
+  "n_qubits": 4,
+  "n_var_layers": 2,
+  "n_reupload": 1,
+  "enc_width": 32,
+  "enc_depth": 3,
+  "dec_width": 32,
+  "dec_depth": 2,
+  "encoding": "angle",
+  "delta2": 0.0025,
+  "seed": 42,
+  "epochs": 20000,
+  "batch_f": 512,
+  "weights": [
+    1.0,
+    100.0,
+    100.0
+  ],
+  "params": {
+    "encoder": 2340,
+    "quantum": 24,
+    "decoder": 1249,
+    "total": 3614
+  },
+  "final_enc_scale": 3.209354444903235,
+  "timestamp": 1784887204.1396337
+}
