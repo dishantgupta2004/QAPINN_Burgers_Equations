@@ -29,7 +29,7 @@ class ClassicalPINN(nn.Module):
         return out
 
 # ---------------- QA-PINN ----------------
-def make_qnode(n_qubits, n_layers=8, reupload=False, ret="probs"):
+def make_qnode(n_qubits, n_layers=2, reupload=True, ret="probs"):
     """FIX: AngleEmbedding now tiles inputs across ALL n_qubits (no dangling ancilla)."""
     dev = qml.device("default.qubit", wires=n_qubits)
 
@@ -52,7 +52,7 @@ def make_qnode(n_qubits, n_layers=8, reupload=False, ret="probs"):
     return circuit
 
 class QAPINN(nn.Module):
-    def __init__(self, n_qubits, hidden=8, n_layers=8, reupload=True):
+    def __init__(self, n_qubits, hidden=8, n_layers=2, reupload=True):
         super().__init__()
         self.n_qubits, self.n_layers, self.reupload = n_qubits, n_layers, reupload
         self.hidden = hidden

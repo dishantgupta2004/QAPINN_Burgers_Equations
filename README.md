@@ -1,0 +1,1 @@
+Solved the Burgers_1D and Burgers_2D. Explainabble AI Module inside Burgers_1D. 

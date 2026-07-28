@@ -3,7 +3,7 @@ from config import DEVICE, set_seed
 from physics import build_batches, composite_loss
 from models import ClassicalPINN
 
-def train_classical(depth=4, width=8, adam_epochs=15000, lbfgs_iter=0,
+def train_classical(depth=4, width=8, adam_epochs=600, lbfgs_iter=0,
                     lr=2e-3, seed=0, log_every=500, snapshot_epochs=()):
     set_seed(seed)
     model = ClassicalPINN(depth, width).to(DEVICE)

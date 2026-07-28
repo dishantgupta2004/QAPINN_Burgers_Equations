@@ -3,8 +3,8 @@ from config import DEVICE, set_seed
 from physics import build_batches, composite_loss
 from models import QAPINN
 
-def train_qapinn(n_qubits=4, n_layers=8, hidden=8, reupload=True,
-                 epochs=15000, lr=2e-3, seed=0, n_pde=1500, n_ic=256, n_bc=128,
+def train_qapinn(n_qubits=3, n_layers=2, hidden=8, reupload=True,
+                 epochs=600, lr=2e-3, seed=0, n_pde=256, n_ic=128, n_bc=128,
                  log_every=200, snapshot_epochs=()):
     set_seed(seed)
     model = QAPINN(n_qubits, hidden=hidden, n_layers=n_layers,
