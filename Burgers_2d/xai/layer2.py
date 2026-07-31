@@ -1,4 +1,14 @@
 """
+layer2.py — Quantum-Layer Explainability  (spec "Layer 2", 11 analyses)
+=======================================================================
+
+These analyses answer one question in eleven ways: *what does inserting a
+quantum layer into a classical PINN actually buy (or cost) you?* They are the
+heart of the module. Each is a standalone function taking a `QuantumProbe`
+(from adapter.py) plus a `bounds` box describing the input domain, so the same
+code applies to 1D Burgers, 2D Burgers, or any CFD problem.
+
+Index (matches the specification image):
   2.1  input_sensitivity          — how input encoding affects PDE learning
   2.2  measurement_operators      — how informative the measurements are (Z/X/Y, Pauli, correlation w/ residual)
   2.3  circuit_depth_analysis     — depth (n_layers) sweep vs loss / expressivity / runtime
@@ -10,6 +20,14 @@
   2.9  measurement_distribution   — raw-measurement histograms: entropy, KL, evolution
   2.10 feature_attribution        — saliency / sensitivity maps for explainability
   2.11 quantum_state_evolution    — store/visualise state every few epochs (Bloch, purity, fidelity)
+
+Honesty guardrails (baked in, per project principles):
+  * Fourier support is reported as *encoding-determined* (Schuld-Sweke-Meyer):
+    the accessible frequency set is fixed by the encoding, expanded linearly by
+    re-uploading; weights only redistribute amplitude. We measure the empirical
+    spectral centroid and flag the theoretical reachable band separately.
+  * Entanglement conclusions are conditional on *observed* Q, never presupposed.
+  * Random-init spectra are labelled as such; trained-vs-untrained is never conflated.
 """
 from __future__ import annotations
 from typing import Optional, Sequence, Callable, Dict, Any, List
@@ -21,17 +39,31 @@ from .adapter import QuantumProbe, ModelAdapter
 from . import utils
 
 
-#  2.1  Input-encoding sensitivity                                             
-
+# ============================================================================= #
+#  2.1  Input-encoding sensitivity                                              #
+# ============================================================================= #
 def input_sensitivity(probe: QuantumProbe, bounds: Sequence[tuple],
                       n: int = 1500, seed: int = 0, noise_sigma: float = 0.02,
                       plot: bool = True, outdir: str = "outputs/xai") -> Dict[str, Any]:
+    """
+    How does the input encoding affect learning?
+
+    Metrics
+    -------
+    * input_sensitivity[d] : mean |d(output)/d(input_d)| — which coordinate the
+      field responds to most (e.g. x vs t for Burgers).
+    * feature_importance   : same, normalised to sum 1.
+    * encoding_robustness  : relative change in the *quantum probabilities* when
+      inputs are perturbed by Gaussian noise — how brittle the encoding is.
+    * grad_norm_input      : ||d(output)/d(input)|| distribution stats.
+    """
     X = utils.sample_domain(bounds, n, seed=seed, device=probe.device)
-    g = utils.input_gradient(probe, X)                   
+    g = utils.input_gradient(probe, X)                      # (N, d_in)
     sens = np.abs(g).mean(0)
     importance = sens / (sens.sum() + 1e-30)
     gn = np.linalg.norm(g, axis=1)
-    
+
+    # encoding robustness: perturb inputs, measure prob shift
     with torch.no_grad():
         p0 = probe.probs(X).cpu().numpy()
         Xn = X + noise_sigma * torch.randn_like(X)
@@ -59,9 +91,9 @@ def input_sensitivity(probe: QuantumProbe, bounds: Sequence[tuple],
     return res
 
 
-
-#  2.2  Measurement-operator analysis                                           
-
+# ============================================================================= #
+#  2.2  Measurement-operator analysis                                           #
+# ============================================================================= #
 _PAULI = {
     "I": np.eye(2, dtype=complex),
     "X": np.array([[0, 1], [1, 0]], dtype=complex),

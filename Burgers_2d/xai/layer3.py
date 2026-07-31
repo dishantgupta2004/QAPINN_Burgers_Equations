@@ -1,4 +1,13 @@
 """
+layer3.py — Optimization Analysis  (spec "Layer 3")
+===================================================
+
+Layer 3 is *independent of quantum properties*: it treats the model as a
+parametric map and studies the optimisation geometry. It therefore runs
+identically on a classical PINN and a QA-PINN, which is exactly what you want —
+put the two side by side to see how the quantum layer changes the training
+dynamics.
+
 Tracked quantities (from the spec):
   * gradient norm & gradient variance
   * parameter norm
@@ -7,6 +16,9 @@ Tracked quantities (from the spec):
   * loss curvature (dominant Hessian eigenvalue)
   * training stability  (from a supplied loss history)
   * effective learning-rate ceiling  (2 / lambda_max)
+
+Everything routes through a single `loss_fn()` closure that recomputes the total
+PINN loss at the model's current parameters, so no training internals leak in.
 """
 from __future__ import annotations
 from typing import Callable, Optional, Sequence, Dict, Any

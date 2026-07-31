@@ -1,0 +1,569 @@
+{
+  "tag": "burgers2d_4q_cpu",
+  "model": "qpinn2d_3q_u",
+  "n_qubits": 3,
+  "n_layers": 2,
+  "reupload": false,
+  "bounds": [
+    [
+      0.0,
+      1.0
+    ],
+    [
+      0.0,
+      1.0
+    ],
+    [
+      0.0,
+      1.0
+    ]
+  ],
+  "has_statevector": true,
+  "has_classical_baseline": true,
+  "results": {
+    "layer2": {
+      "2.1": {
+        "analysis": "input_sensitivity",
+        "d_in": 3,
+        "input_sensitivity": [
+          0.2084246724843979,
+          0.21047045290470123,
+          0.05277569964528084
+        ],
+        "feature_importance": [
+          0.4418858587741852,
+          0.4462231695652008,
+          0.11189095675945282
+        ],
+        "grad_norm_mean": 0.30125781893730164,
+        "grad_norm_std": 0.37883561849594116,
+        "encoding_robustness": 0.036383021622896194,
+        "noise_sigma": 0.02,
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_1_input_sensitivity_qpinn2d_3q_u.png"
+      },
+      "2.2": {
+        "analysis": "measurement_operators",
+        "n_qubits": 3,
+        "expZ_var": [
+          0.44436727509791557,
+          0.0022715248548947626,
+          0.0001910381631153174
+        ],
+        "expX_var": [
+          0.31992970751649713,
+          0.02628583391720222,
+          0.016404706175105987
+        ],
+        "expY_var": [
+          0.04873975449749146,
+          0.0022191834893707974,
+          0.002759983455263312
+        ],
+        "residual_correlation_Z": [
+          0.1080248587312508,
+          0.4987303127582664,
+          -0.35949034806324853
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_2_measurement_ops_qpinn2d_3q_u.png"
+      },
+      "2.4": {
+        "analysis": "entanglement",
+        "n_qubits": 3,
+        "meyer_wallach_Q": 0.08683863953956368,
+        "Q_std": 0.02012413002565849,
+        "single_qubit_entropy": [
+          0.15558965645632722,
+          0.13534738548376407,
+          0.16559847848349193
+        ],
+        "pair_correlation": [
+          [
+            0.0,
+            -0.0022489324137692198,
+            0.0274743854277241
+          ],
+          [
+            -0.0022489324137692198,
+            0.0,
+            0.06401120777864874
+          ],
+          [
+            0.0274743854277241,
+            0.06401120777864874,
+            0.0
+          ]
+        ],
+        "interpretation": "Mild entanglement: the quantum layer uses correlations modestly.",
+        "Q_vs_residual_corr": -0.2553007031825504,
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_4_entanglement_qpinn2d_3q_u.png"
+      },
+      "2.5": {
+        "analysis": "fourier_spectrum",
+        "axis": 0,
+        "spectral_centroid": 43.035113437312056,
+        "theoretical_reachable_freq": 1,
+        "reupload": false,
+        "n_layers": 2,
+        "note": "Reachable frequency band is encoding-determined (Schuld-Sweke-Meyer); re-uploading expands it linearly. Weights redistribute amplitude within that band only.",
+        "classical_spectral_centroid": 42.60664645377047,
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_5_fourier_qpinn2d_3q_u.png"
+      },
+      "2.6": {
+        "analysis": "expressivity",
+        "n_qubits": 3,
+        "feature_dim": 8,
+        "kernel_rank": 11,
+        "effective_dimension": 2.2675700170390254,
+        "mean_state_overlap": 0.5545895923895328,
+        "eigspectrum_head": [
+          173.2575656759533,
+          92.77624104090812,
+          32.60635685927946,
+          1.1196771936552814,
+          0.10055622132273588,
+          0.08823124842459197,
+          0.026958846129653512,
+          0.01678354136542177,
+          0.005098955444674938,
+          0.0019266873712848406,
+          0.00046735036059357394,
+          5.44650077768812e-05,
+          3.6359588477959276e-05,
+          1.3927883295590832e-05,
+          1.0989825860877038e-05,
+          6.259125057474688e-06,
+          3.71296007913022e-06,
+          1.1276349015921341e-06,
+          6.004559469655934e-07,
+          1.211721951935277e-07
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_6_expressivity_qpinn2d_3q_u.png"
+      },
+      "2.9": {
+        "analysis": "measurement_distribution",
+        "n_qubits": 3,
+        "mean_entropy": 0.8573426129594102,
+        "effective_support": 1.8116981592175039,
+        "kl_to_uniform": 1.678909411139624,
+        "basis_dim": 8,
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_9_measdist_qpinn2d_3q_u.png"
+      },
+      "2.10q": {
+        "analysis": "feature_attribution",
+        "axes": [
+          0,
+          1
+        ],
+        "saliency_max": 1.1216486692428589,
+        "saliency_mean": 0.30364930629730225,
+        "peak_location": [
+          0.01680672268907563,
+          0.13445378151260504
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_10_saliency_qpinn2d_3q_u.png"
+      },
+      "2.10c": {
+        "analysis": "feature_attribution",
+        "axes": [
+          0,
+          1
+        ],
+        "saliency_max": 1.0516066551208496,
+        "saliency_mean": 0.31586188077926636,
+        "peak_location": [
+          0.18487394957983191,
+          0.31092436974789917
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_10_saliency_pinn2d_u.png"
+      },
+      "2.8": {
+        "analysis": "loss_landscape",
+        "span": 1.0,
+        "grid_n": 15,
+        "loss_center": 0.0002122935256920755,
+        "loss_min": 0.0002122935256920755,
+        "loss_max": 364.5990295410156,
+        "roughness": 52.111921985185695,
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_8_landscape_qpinn2d_3q_u.png"
+      },
+      "2.7_barren_plateau": {
+        "analysis": "barren_plateau",
+        "qubit_list": [
+          2,
+          4,
+          6
+        ],
+        "depth_list": [
+          2,
+          4,
+          8
+        ],
+        "grad_var_grid": [
+          [
+            5.704909563064575e-05,
+            0.00010118547652382404,
+            0.00011421583621995524
+          ],
+          [
+            0.0014689903473481536,
+            0.0002337365731364116,
+            0.0001044873206410557
+          ],
+          [
+            1.039371363731334e-05,
+            0.00014111136260908097,
+            1.4441993698710576e-05
+          ]
+        ],
+        "detail": [
+          {
+            "n_qubits": 2,
+            "depth": 2,
+            "grad_var": 5.704909563064575e-05
+          },
+          {
+            "n_qubits": 2,
+            "depth": 4,
+            "grad_var": 0.00010118547652382404
+          },
+          {
+            "n_qubits": 2,
+            "depth": 8,
+            "grad_var": 0.00011421583621995524
+          },
+          {
+            "n_qubits": 4,
+            "depth": 2,
+            "grad_var": 0.0014689903473481536
+          },
+          {
+            "n_qubits": 4,
+            "depth": 4,
+            "grad_var": 0.0002337365731364116
+          },
+          {
+            "n_qubits": 4,
+            "depth": 8,
+            "grad_var": 0.0001044873206410557
+          },
+          {
+            "n_qubits": 6,
+            "depth": 2,
+            "grad_var": 1.039371363731334e-05
+          },
+          {
+            "n_qubits": 6,
+            "depth": 4,
+            "grad_var": 0.00014111136260908097
+          },
+          {
+            "n_qubits": 6,
+            "depth": 8,
+            "grad_var": 1.4441993698710576e-05
+          }
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_7_barren_qpinn2d.png"
+      },
+      "2.11_state_evolution": {
+        "analysis": "quantum_state_evolution",
+        "epochs": [
+          0,
+          500,
+          1000,
+          1500,
+          2000
+        ],
+        "n_qubits": 3,
+        "bloch": [
+          [
+            [
+              -0.12495462745799159,
+              0.04570559409900095,
+              0.9558329458518408
+            ],
+            [
+              -0.090976172165407,
+              -0.001348562478167251,
+              0.9775311171282446
+            ],
+            [
+              -0.02638580466266159,
+              -0.019920777547391005,
+              0.9503632418712035
+            ]
+          ],
+          [
+            [
+              0.006914363410931556,
+              -0.024117646762096438,
+              0.9328396745997787
+            ],
+            [
+              -0.1522318172130678,
+              -0.038831956915166756,
+              0.9414496055611534
+            ],
+            [
+              0.014318430876009492,
+              -0.011106321891774788,
+              0.9149216103754546
+            ]
+          ],
+          [
+            [
+              0.0859761056214467,
+              -0.0464445952443102,
+              0.9279023143717445
+            ],
+            [
+              -0.16326134716335344,
+              -0.037589685728558184,
+              0.9471685709726082
+            ],
+            [
+              0.03156473648097715,
+              -2.0316432406054796e-05,
+              0.921219148290196
+            ]
+          ],
+          [
+            [
+              0.11780062267518608,
+              -0.058836466172412824,
+              0.9265057280526111
+            ],
+            [
+              -0.16904685573725556,
+              -0.03235670804299376,
+              0.9519481595379267
+            ],
+            [
+              0.04027372572608066,
+              0.00534649414593336,
+              0.92691475321555
+            ]
+          ],
+          [
+            [
+              0.12379430615289383,
+              -0.06169732655370312,
+              0.9262332463526687
+            ],
+            [
+              -0.16992090122962766,
+              -0.02983952699911043,
+              0.953074107750296
+            ],
+            [
+              0.04235795183246298,
+              0.006425647924481881,
+              0.928208151661938
+            ]
+          ]
+        ],
+        "purity": [
+          [
+            0.9656597140283394,
+            0.9819228574511918,
+            0.9521417434957475
+          ],
+          [
+            0.9354100571549719,
+            0.9555052966784544,
+            0.9187053537382665
+          ],
+          [
+            0.935275783873754,
+            0.962597712677444,
+            0.9248204618721076
+          ],
+          [
+            0.9378758707766585,
+            0.9679146277111885,
+            0.9304108393484275
+          ],
+          [
+            0.9385197711767326,
+            0.9690568451374768,
+            0.9317028916055365
+          ]
+        ],
+        "entropy": [
+          [
+            0.1270219733648649,
+            0.07491368677165573,
+            0.1661753517710767
+          ],
+          [
+            0.21122276770514228,
+            0.15670126189139036,
+            0.253413192522491
+          ],
+          [
+            0.2115697056330241,
+            0.13615548751309697,
+            0.23824319277758776
+          ],
+          [
+            0.20477720151663367,
+            0.12018035760406254,
+            0.22410484958671853
+          ],
+          [
+            0.20308371324616253,
+            0.11667423509572139,
+            0.22079698045806662
+          ]
+        ],
+        "fidelity": [
+          1.0,
+          0.9867550933573328,
+          0.9980397612020788,
+          0.9995874285756255,
+          0.999978907657696
+        ],
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l2_11_state_evol_qpinn2d.png"
+      }
+    },
+    "layer3": {
+      "qa": {
+        "analysis": "optimization_report",
+        "model": "qpinn2d_3q_u",
+        "gradient": {
+          "analysis": "gradient_diagnostics",
+          "grad_norm_mean": 0.029419172555208206,
+          "grad_norm_std": 0.0,
+          "grad_variance": 1.8426074992426642e-20,
+          "param_norm": 7.491656303405762,
+          "n_params": 775
+        },
+        "hessian": {
+          "analysis": "hessian_diagnostics",
+          "hessian_trace": 783.5276458740234,
+          "lambda_max": 271.0064697265625,
+          "lambda_min": 0.01776123046875,
+          "condition_number": 15258.31615034367,
+          "lr_ceiling": 0.007379897616532673,
+          "n_params": 775
+        },
+        "stability": {
+          "analysis": "training_stability",
+          "final_loss": 0.0002732780994847417,
+          "monotonic_fraction": 1.0,
+          "late_volatility": 6.2906614819646425,
+          "iters_to_90pct": 1,
+          "total_iters": 41
+        },
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l3_optim_qpinn2d_3q_u.png"
+      },
+      "cl": {
+        "analysis": "optimization_report",
+        "model": "pinn2d_u",
+        "gradient": {
+          "analysis": "gradient_diagnostics",
+          "grad_norm_mean": 0.07769244909286499,
+          "grad_norm_std": 0.0,
+          "grad_variance": 7.062953553911485e-21,
+          "param_norm": 16.522470474243164,
+          "n_params": 17026
+        },
+        "hessian": {
+          "analysis": "hessian_diagnostics",
+          "hessian_trace": 1343.6794128417969,
+          "lambda_max": 469.06097412109375,
+          "lambda_min": 0.001373291015625,
+          "condition_number": 341559.77752906154,
+          "lr_ceiling": 0.004263837987689148,
+          "n_params": 17026
+        },
+        "stability": {
+          "analysis": "training_stability",
+          "final_loss": 0.0017848964780569077,
+          "monotonic_fraction": 0.95,
+          "late_volatility": 4.410895940062025,
+          "iters_to_90pct": 1,
+          "total_iters": 21
+        },
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l3_optim_pinn2d_u.png"
+      }
+    },
+    "layer4": {
+      "domain_generalization": {
+        "analysis": "domain_generalization",
+        "extend_axis": 2,
+        "factors": [
+          1.0,
+          1.5,
+          2.0,
+          3.0
+        ],
+        "rel_l2": {
+          "qpinn2d": [
+            0.0022883927449584007,
+            0.004014969803392887,
+            0.010055631399154663,
+            0.03814604878425598
+          ],
+          "pinn2d": [
+            0.005600519943982363,
+            0.006265556905418634,
+            0.008379442617297173,
+            0.01483860146254301
+          ]
+        },
+        "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\l4_domain_generalization.png"
+      }
+    },
+    "qubit_scaling": {
+      "analysis": "qubit_scaling",
+      "qubit_list": [
+        2,
+        4,
+        6
+      ],
+      "table": [
+        {
+          "n_qubits": 2,
+          "rel_l2": 0.012459031771868467,
+          "effective_dimension": 1.3001294154571488,
+          "kernel_rank": 9,
+          "measurement_entropy": 1.38223895007352,
+          "meyer_wallach_Q": 0.22864873604241398,
+          "param_count": 2486,
+          "feature_dim": 4
+        },
+        {
+          "n_qubits": 4,
+          "rel_l2": 0.007413348415866494,
+          "effective_dimension": 2.4873462052992417,
+          "kernel_rank": 22,
+          "measurement_entropy": 3.1987008746257017,
+          "meyer_wallach_Q": 0.7880064025653798,
+          "param_count": 2634,
+          "feature_dim": 16
+        },
+        {
+          "n_qubits": 6,
+          "rel_l2": 0.007131791324354708,
+          "effective_dimension": 2.504372820513849,
+          "kernel_rank": 29,
+          "measurement_entropy": 3.960625908133345,
+          "meyer_wallach_Q": 0.8784954700755542,
+          "param_count": 2782,
+          "feature_dim": 64
+        }
+      ],
+      "figure": "d:\\PINN\\Burgers_2d\\outputs\\xai2d\\scaling_qpinn2d.png"
+    },
+    "performance": {
+      "pinn2d": {
+        "rel_u": 0.005829009343869984,
+        "rel_v": 0.0069543562131002545
+      },
+      "qpinn2d": {
+        "rel_u": 0.0023957204539328814,
+        "rel_v": 0.003284917213022709
+      }
+    }
+  }
+}

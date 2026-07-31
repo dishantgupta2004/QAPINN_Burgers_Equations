@@ -1,0 +1,14 @@
+,QPINN2D
+Meyer–Wallach Q,0.08683863953956368
+  └ Q std,0.02012413002565849
+effective dimension,2.2675700170390254
+kernel rank,11.0
+feature dim (2^q),8.0
+mean state overlap,0.5545895923895328
+measurement entropy (bits),0.8573426129594102
+effective support,1.8116981592175039
+KL to uniform,1.678909411139624
+spectral centroid,43.035113437312056
+reachable freq (SSM),1.0
+encoding robustness,0.036383021622896194
+input-grad norm,0.30125781893730164

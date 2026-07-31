@@ -1,3 +1,18 @@
+"""
+scaling.py — Qubit-Scaling analysis  (spec: "for diff qubits: 2, 4, 6, 8, 10")
+==============================================================================
+
+Sweeps qubit count and collates the key explainability + performance scalars so
+you can see how the quantum layer's behaviour scales: accuracy, expressivity
+(effective dimension), entanglement (Meyer-Wallach Q), measurement-space usage
+(entropy), trainability (gradient variance / barren-plateau onset), and cost
+(runtime, parameter count).
+
+Design: it takes a `build_probe_and_metrics(n_qubits)` callback that returns a
+`(QuantumProbe, extra_metrics_dict)` tuple, so it stays agnostic to how you train
+each model. The per-qubit explainability scalars are computed here from the probe;
+`extra_metrics_dict` carries whatever you already measured (rel_l2, runtime, ...).
+"""
 from __future__ import annotations
 from typing import Callable, Sequence, Dict, Any, Tuple
 import numpy as np

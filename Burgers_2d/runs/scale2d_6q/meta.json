@@ -1,0 +1,16 @@
+{
+  "tag": "scale2d_6q",
+  "seed": 1234,
+  "iters": 1200,
+  "n_r": 256,
+  "chunk": 256,
+  "n_qubits": 6,
+  "n_layers": 3,
+  "reupload": true,
+  "nu": 0.01,
+  "lr": 0.003,
+  "n_params": 2782,
+  "n_q_params": 54,
+  "best_mean_relL2": 0.005499079270521179,
+  "wall_total_s": 3261.848088502884
+}

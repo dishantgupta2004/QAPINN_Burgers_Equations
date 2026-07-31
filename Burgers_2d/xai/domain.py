@@ -1,3 +1,15 @@
+"""
+domain.py — Layer 4: Domain generalization  (spec "Layer 4")
+============================================================
+
+"Instead of testing only x in [0,1], test other domains." Layer 4 probes how the
+model behaves *outside* the training box — extrapolation in space and/or time —
+and compares that degradation between the classical PINN and the QA-PINN.
+
+Given a ground-truth callable (any of the codebase's solvers via the GroundTruth
+interface, or an analytic reference), it measures relative-L2 on a sequence of
+progressively-extrapolated domains and reports where each model breaks down.
+"""
 from __future__ import annotations
 from typing import Callable, Optional, Sequence, Dict, Any, List
 import numpy as np
@@ -19,6 +31,18 @@ def domain_generalization(adapters: Dict[str, ModelAdapter],
                           factors: Sequence[float] = (1.0, 1.25, 1.5, 2.0, 3.0),
                           n: int = 4000, plot: bool = True,
                           outdir: str = "outputs/xai") -> Dict[str, Any]:
+    """
+    Evaluate each model on domains scaled by `factors` along `extend_axis`
+    (e.g. extend t from [0,1] to [0,3]) and report relative-L2 vs `ref_fn`.
+
+    Parameters
+    ----------
+    adapters : {name: ModelAdapter}   models to compare (classical + quantum).
+    ref_fn   : callable(points (N,d_in)) -> (N,) ground-truth field. Wrap your
+               GroundTruth: ``lambda P: gt(P[:,0], P[:,1])`` for (x,t).
+    base_bounds : the training box, e.g. [(-1,1),(0,1)].
+    extend_axis : which axis to stretch.
+    """
     results = {name: [] for name in adapters}
     for f in factors:
         b = [list(x) for x in base_bounds]

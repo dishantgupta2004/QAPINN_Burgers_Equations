@@ -1,0 +1,20 @@
+{
+  "tag": "pinn2d_xai",
+  "seed": 1234,
+  "iters": 2000,
+  "n_r": 3000,
+  "n_i": 500,
+  "n_b": 250,
+  "lam_r": 1.0,
+  "lam_i": 10.0,
+  "lam_b": 10.0,
+  "nu": 0.01,
+  "lr": 0.001,
+  "resample_every": 2000,
+  "device": "cpu",
+  "best_mean_relL2": 0.006391682778485119,
+  "n_params": 17026,
+  "wall_total_s": 264.89681792259216,
+  "torch": "2.6.0+cu124",
+  "model": "PINN2D"
+}

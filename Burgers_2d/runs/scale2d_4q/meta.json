@@ -1,0 +1,16 @@
+{
+  "tag": "scale2d_4q",
+  "seed": 1234,
+  "iters": 1200,
+  "n_r": 256,
+  "chunk": 256,
+  "n_qubits": 4,
+  "n_layers": 3,
+  "reupload": true,
+  "nu": 0.01,
+  "lr": 0.003,
+  "n_params": 2634,
+  "n_q_params": 36,
+  "best_mean_relL2": 0.006578393513336778,
+  "wall_total_s": 1262.5612363815308
+}

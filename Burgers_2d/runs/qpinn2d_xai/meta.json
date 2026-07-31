@@ -1,0 +1,19 @@
+{
+  "tag": "qpinn2d_xai",
+  "seed": 1234,
+  "iters": 2000,
+  "n_r": 256,
+  "chunk": 256,
+  "n_qubits": 3,
+  "n_layers": 2,
+  "reupload": false,
+  "nu": 0.01,
+  "lr": 0.003,
+  "n_params": 775,
+  "n_q_params": 18,
+  "best_mean_relL2": 0.0028664186247624457,
+  "wall_total_s": 653.5519683361053,
+  "model": "QPINN2D",
+  "enc_width": 16,
+  "head_width": 16
+}

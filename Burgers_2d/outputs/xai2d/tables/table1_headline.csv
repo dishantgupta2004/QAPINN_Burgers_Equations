@@ -1,0 +1,12 @@
+,PINN2D (classical),QPINN2D (quantum)
+architecture,"MLP (width 64, depth 5)","enc→PQC(3q×2L,reup=False)→head"
+total parameters,17026,775
+  ├ encoder params,,387
+  ├ quantum params,—,18
+  └ head params,,370
+rel-L2 (u),0.005829009343869984,0.0023957204539328814
+rel-L2 (v),0.0069543562131002545,0.003284917213022709
+rel-L2 (mean),0.006391682778485119,0.002840318833477795
+training iters,2000,2000
+wall-clock (s),264.9,653.5
+ms / iter,132.43,326.74
